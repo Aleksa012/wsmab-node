@@ -1,5 +1,5 @@
-import { Router, Request, Response } from "express";
-import { User } from "../models/user-model";
+import { Request, Response } from "express";
+import { User } from "../../models/user-model";
 
 interface UserResponse {
   username: string;
@@ -10,9 +10,7 @@ interface UserResponse {
   id: string;
 }
 
-export const userRouter: Router = Router();
-
-userRouter.post("/", async (req: Request, res: Response) => {
+export const createUser = async (req: Request, res: Response) => {
   try {
     const newUser = new User(req.body);
     await newUser.save();
@@ -20,34 +18,35 @@ userRouter.post("/", async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).send(error);
   }
-});
+};
 
-userRouter.get("/", async (_, res: Response) => {
+export const getAllUsers = async (_: Request, res: Response) => {
   try {
     const allUsers = await User.find();
 
-    const allUsersFormated: UserResponse[] = [];
-
-    for (const user of allUsers) {
-      allUsersFormated.push({
-        id: user._id.toString(),
-        username: user.username,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        createdAt: user.createdAt,
-      });
-    }
+    const allUsersFormated: UserResponse[] = allUsers.map(
+      ({ _id, firstName, lastName, createdAt, email, username }) => {
+        return {
+          id: _id.toString(),
+          username,
+          email,
+          firstName,
+          lastName,
+          createdAt,
+        };
+      }
+    );
 
     res.status(200).send(allUsersFormated);
   } catch (error: any) {
     res.status(400).send(error);
   }
-});
+};
 
-userRouter.get("/:id", async (req: Request, res: Response) => {
+export const getUserById = async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.params.id);
+
     if (!user) return;
 
     const formatedUser: UserResponse = {
@@ -63,4 +62,4 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
   } catch (error) {
     res.status(400).send(error);
   }
-});
+};

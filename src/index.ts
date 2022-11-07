@@ -5,7 +5,7 @@ import express, { Application } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 
-import { userRouter } from "./routes/user-routes";
+import { userRouter } from "./routes/routers/users";
 
 const app: Application = express();
 
