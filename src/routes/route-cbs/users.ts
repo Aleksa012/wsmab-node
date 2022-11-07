@@ -1,5 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Request, Response } from "express";
 import { User } from "../../models/user-model";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 interface UserResponse {
   username: string;
@@ -38,7 +43,7 @@ export const getAllUsers = async (_: Request, res: Response) => {
     );
 
     res.status(200).send(allUsersFormated);
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).send(error);
   }
 };
@@ -61,5 +66,39 @@ export const getUserById = async (req: Request, res: Response) => {
     res.status(200).send(formatedUser);
   } catch (error) {
     res.status(400).send(error);
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.body;
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      res.status(404).send({ message: "Bad credentials" });
+      return;
+    }
+
+    const passwordIsCorrect = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+
+    if (!passwordIsCorrect) {
+      res.status(404).send({ message: "Bad credentials" });
+      return;
+    }
+
+    const secret = process.env.ACCESS_TOKEN_KEY;
+
+    if (!secret) return;
+
+    const token = jwt.sign({ username: user.username }, secret, {
+      expiresIn: "1d",
+    });
+
+    res.status(200).send(token);
+  } catch (error) {
+    res.status(400).send({ message: "Bad request" });
   }
 };
