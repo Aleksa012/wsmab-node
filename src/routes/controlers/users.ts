@@ -15,6 +15,18 @@ interface UserResponse {
   id: string;
 }
 
+interface ErrorResponse {
+  status: number;
+  message: string;
+}
+
+const errorRes = (status: number, message: string): ErrorResponse => {
+  return {
+    status,
+    message,
+  };
+};
+
 export const createUser = async (req: Request, res: Response) => {
   try {
     const newUser = new User(req.body);
@@ -100,5 +112,67 @@ export const login = async (req: Request, res: Response) => {
     res.status(200).send(token);
   } catch (error) {
     res.status(400).send({ message: "Bad request" });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    if (!deletedUser)
+      return res.status(404).send(errorRes(404, "User not found"));
+    res.status(200).send({ message: "User successfully deleted" });
+  } catch (error) {
+    res.status(400).send(errorRes(400, "Bad request"));
+  }
+};
+
+export const changeUsername = async (req: Request, res: Response) => {
+  try {
+    const nameAlreadyExists = !!(await User.findOne({
+      username: req.body.newUsername,
+    }));
+    if (nameAlreadyExists)
+      return res
+        .status(400)
+        .send(errorRes(400, "That username is already in use"));
+    res.status(200).send({ message: "Username successfully edited" });
+  } catch (error) {
+    res.status(400).send(errorRes(400, "Bad request"));
+  }
+};
+
+export const changePassword = async (req: Request, res: Response) => {
+  const { newPassword, oldPassword } = req.body;
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id);
+
+    if (!user) return res.status(404).send(errorRes(404, "User not found"));
+    const correctPassword = !!(await bcrypt.compare(
+      oldPassword,
+      user.password
+    ));
+
+    if (!correctPassword)
+      return res
+        .status(400)
+        .send(errorRes(400, "Please enter the valid password"));
+
+    if (newPassword.length < 8 || newPassword.length > 16)
+      return res
+        .status(400)
+        .send(errorRes(400, "New password doesn't follow the requirements"));
+
+    const passwordToSet = await bcrypt.hash(
+      req.body.newPassword,
+      await bcrypt.genSalt(10)
+    );
+
+    await User.findByIdAndUpdate(id, {
+      password: passwordToSet,
+    });
+    res.status(200).send({ message: "Password successfully edited" });
+  } catch (error) {
+    res.status(400).send(errorRes(400, "Bad request"));
   }
 };
