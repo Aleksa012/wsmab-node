@@ -124,7 +124,7 @@ export const login = async (
 
     if (!secret) return;
 
-    const token = jwt.sign({ username: user.username }, secret, {
+    const token = jwt.sign({ id: user._id, username: user.username }, secret, {
       expiresIn: "1d",
     });
 

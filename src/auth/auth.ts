@@ -6,6 +6,7 @@ import { NextFunction, Request, Response } from "express";
 
 export interface Token extends JwtPayload {
   username: string;
+  id: string;
 }
 
 export const auth = (req: Request, res: Response, next: NextFunction) => {

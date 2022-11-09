@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 
 import { userRouter } from "./routes/routers/users";
+import { postRouter } from "./routes/routers/posts";
 
 const app: Application = express();
 
@@ -17,5 +18,6 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/users", userRouter);
+app.use("/posts", postRouter);
 
 app.listen(process.env.PORT);
