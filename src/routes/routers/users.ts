@@ -4,7 +4,7 @@ import {
   getAllUsers,
   getUserById,
   login,
-} from "./../route-cbs/users";
+} from "./../controlers/users";
 import { auth } from "../../auth/auth";
 
 export const userRouter: Router = Router();
