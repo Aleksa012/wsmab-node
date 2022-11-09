@@ -54,7 +54,7 @@ export const createPost = async (
     await newPost.save();
     res.status(200).send("Post created successfully");
   } catch (error) {
-    res.status(400).send("Bad Request");
+    res.status(400).send(errorRes(400, "Bad Request"));
   }
 };
 
@@ -90,7 +90,7 @@ export const getAllPosts = async (_: Request, res: Response) => {
 
     res.status(200).send({ posts: formatedPosts, count: formatedPosts.length });
   } catch (error) {
-    res.status(400).send("Bad Request");
+    res.status(400).send(errorRes(400, "Bad Request"));
   }
 };
 
@@ -119,7 +119,7 @@ export const getPostById = async (
 
     res.status(200).send(formatedPost);
   } catch (error) {
-    res.status(400).send("Bad Request");
+    res.status(400).send(errorRes(400, "Bad Request"));
   }
 };
 
@@ -139,7 +139,7 @@ export const deletePost = async (
 
     res.status(200).send("Post successfully deleted");
   } catch (error) {
-    res.status(400).send("Bad Request");
+    res.status(400).send(errorRes(400, "Bad Request"));
   }
 };
 
@@ -170,7 +170,7 @@ export const editPost = async (
 
     res.status(200).send("Post successfully edited");
   } catch (error) {
-    res.status(400).send("Bad Request");
+    res.status(400).send(errorRes(400, "Bad Request"));
   }
 };
 
@@ -192,8 +192,8 @@ export const likePost = async (req: Request<{ id: string }>, res: Response) => {
       popular: newLikes.length > 4 ? true : false,
     });
 
-    res.status(200).send("like succss");
+    res.send(200);
   } catch (error) {
-    res.status(400).send("Bad Request");
+    res.status(400).send(errorRes(400, "Bad Request"));
   }
 };

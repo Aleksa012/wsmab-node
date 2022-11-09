@@ -42,7 +42,7 @@ export const createUser = async (
   try {
     const newUser = new User(req.body);
     await newUser.save();
-    res.status(200).send({ message: "User created successfully" });
+    res.status(200).send("User created successfully");
   } catch (error: any) {
     res.status(400).send(error);
   }
@@ -67,7 +67,7 @@ export const getAllUsers = async (_: Request, res: Response) => {
 
     res.status(200).send(allUsersFormated);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send(errorRes(400, "Bad request"));
   }
 };
 
@@ -91,7 +91,7 @@ export const getUserById = async (
 
     res.status(200).send(formatedUser);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send(errorRes(400, "Bad request"));
   }
 };
 
@@ -109,14 +109,14 @@ export const login = async (
     const user = await User.findOne({ username });
 
     if (!user) {
-      res.status(404).send({ message: "Bad credentials" });
+      res.status(404).send("Bad credentials");
       return;
     }
 
     const passwordIsCorrect = await bcrypt.compare(password, user.password);
 
     if (!passwordIsCorrect) {
-      res.status(404).send({ message: "Bad credentials" });
+      res.status(404).send("Bad credentials");
       return;
     }
 
@@ -130,7 +130,7 @@ export const login = async (
 
     res.status(200).send(token);
   } catch (error) {
-    res.status(400).send({ message: "Bad request" });
+    res.status(400).send(errorRes(400, "Bad request"));
   }
 };
 
@@ -139,7 +139,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser)
       return res.status(404).send(errorRes(404, "User not found"));
-    res.status(200).send({ message: "User successfully deleted" });
+    res.status(200).send("User successfully deleted");
   } catch (error) {
     res.status(400).send(errorRes(400, "Bad request"));
   }
@@ -171,7 +171,7 @@ export const changeUsername = async (
       }
     );
 
-    res.status(200).send({ message: "Username successfully edited" });
+    res.status(200).send("Username successfully edited");
   } catch (error) {
     res.status(400).send(errorRes(400, "Bad request"));
   }
@@ -215,7 +215,7 @@ export const changePassword = async (
     await User.findByIdAndUpdate(id, {
       password: passwordToSet,
     });
-    res.status(200).send({ message: "Password successfully edited" });
+    res.status(200).send("Password successfully edited");
   } catch (error) {
     res.status(400).send(errorRes(400, "Bad request"));
   }
