@@ -27,7 +27,18 @@ const errorRes = (status: number, message: string): ErrorResponse => {
   };
 };
 
-export const createUser = async (req: Request, res: Response) => {
+interface CreateUserReqBody {
+  username: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  email: string;
+}
+
+export const createUser = async (
+  req: Request<{}, {}, CreateUserReqBody>,
+  res: Response
+) => {
   try {
     const newUser = new User(req.body);
     await newUser.save();
@@ -60,7 +71,10 @@ export const getAllUsers = async (_: Request, res: Response) => {
   }
 };
 
-export const getUserById = async (req: Request, res: Response) => {
+export const getUserById = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
   try {
     const user = await User.findById(req.params.id);
 
@@ -81,9 +95,17 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+interface LoginReqBody {
+  username: string;
+  password: string;
+}
+
+export const login = async (
+  req: Request<{}, {}, LoginReqBody>,
+  res: Response
+) => {
   try {
-    const { username } = req.body;
+    const { username, password } = req.body;
     const user = await User.findOne({ username });
 
     if (!user) {
@@ -91,10 +113,7 @@ export const login = async (req: Request, res: Response) => {
       return;
     }
 
-    const passwordIsCorrect = await bcrypt.compare(
-      req.body.password,
-      user.password
-    );
+    const passwordIsCorrect = await bcrypt.compare(password, user.password);
 
     if (!passwordIsCorrect) {
       res.status(404).send({ message: "Bad credentials" });
@@ -126,22 +145,47 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export const changeUsername = async (req: Request, res: Response) => {
+interface ChangeUsernameReqBody {
+  username: string;
+  newUsername: string;
+}
+
+export const changeUsername = async (
+  req: Request<{}, {}, ChangeUsernameReqBody>,
+  res: Response
+) => {
+  const { username, newUsername } = req.body;
   try {
     const nameAlreadyExists = !!(await User.findOne({
-      username: req.body.newUsername,
+      username: newUsername,
     }));
     if (nameAlreadyExists)
       return res
         .status(400)
         .send(errorRes(400, "That username is already in use"));
+
+    await User.findOneAndUpdate(
+      { username },
+      {
+        username: newUsername,
+      }
+    );
+
     res.status(200).send({ message: "Username successfully edited" });
   } catch (error) {
     res.status(400).send(errorRes(400, "Bad request"));
   }
 };
 
-export const changePassword = async (req: Request, res: Response) => {
+interface ChangePassReqBody {
+  newPassword: string;
+  oldPassword: string;
+}
+
+export const changePassword = async (
+  req: Request<{ id: string }, {}, ChangePassReqBody>,
+  res: Response
+) => {
   const { newPassword, oldPassword } = req.body;
   const { id } = req.params;
   try {
