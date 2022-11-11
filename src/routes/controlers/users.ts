@@ -44,7 +44,7 @@ export const createUser = async (
     await newUser.save();
     res.status(200).send("User created successfully");
   } catch (error: any) {
-    res.status(400).send(error);
+    res.status(400).send(errorRes(400, "Bad request"));
   }
 };
 
