@@ -15,7 +15,11 @@ mongoose.connect(
 );
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://random-fs-app.vercel.app",
+  })
+);
 
 app.use("/users", userRouter);
 app.use("/posts", postRouter);
