@@ -220,3 +220,25 @@ export const changePassword = async (
     res.status(400).send(errorRes(400, "Bad request"));
   }
 };
+
+export const getSelf = async (req: Request, res: Response) => {
+  try {
+    if (!req.token) return;
+    const user = await User.findById(req.token.id);
+
+    if (!user) return;
+
+    const formatedUser: UserResponse = {
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      createdAt: user.createdAt,
+    };
+
+    res.status(200).send(formatedUser);
+  } catch (error) {
+    res.status(400).send(errorRes(400, "Bad request"));
+  }
+};
