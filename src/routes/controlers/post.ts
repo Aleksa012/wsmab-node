@@ -197,3 +197,40 @@ export const likePost = async (req: Request<{ id: string }>, res: Response) => {
     res.status(400).send(errorRes(400, "Bad Request"));
   }
 };
+
+export const getPostsByAuthor = async (req: Request, res: Response) => {
+  const { token } = req;
+  try {
+    const posts = await Post.find({ author: token?.id });
+
+    const formatedPosts = [];
+
+    for (const {
+      _id,
+      author: authorId,
+      createdAt,
+      img,
+      popular,
+      likes,
+      content,
+    } of posts) {
+      const formatedAuthor = (await formatAuthor(authorId)) || "author deleted";
+
+      const formatedPost = {
+        id: _id.toString(),
+        content,
+        author: formatedAuthor,
+        createdAt,
+        img,
+        popular,
+        likes,
+      };
+
+      formatedPosts.push(formatedPost);
+    }
+
+    res.status(200).send({ posts: formatedPosts, count: formatedPosts.length });
+  } catch (error) {
+    res.status(400).send(errorRes(400, "Bad Requestt"));
+  }
+};
