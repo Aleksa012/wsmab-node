@@ -35,6 +35,10 @@ const userSchema = new Schema({
     unique: true,
     validate: [isEmail, "Email is not valid"],
   },
+  icon: {
+    type: String,
+    default: "/",
+  },
 });
 
 userSchema.pre("save", async function (next) {

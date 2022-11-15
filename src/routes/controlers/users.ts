@@ -13,6 +13,7 @@ interface UserResponse {
   createdAt: string;
   email: string;
   id: string;
+  icon: string;
 }
 
 interface ErrorResponse {
@@ -33,6 +34,7 @@ interface CreateUserReqBody {
   lastName: string;
   password: string;
   email: string;
+  img?: string;
 }
 
 export const createUser = async (
@@ -53,7 +55,7 @@ export const getAllUsers = async (_: Request, res: Response) => {
     const allUsers = await User.find();
 
     const allUsersFormated: UserResponse[] = allUsers.map(
-      ({ _id, firstName, lastName, createdAt, email, username }) => {
+      ({ _id, firstName, lastName, createdAt, email, username, icon }) => {
         return {
           id: _id.toString(),
           username,
@@ -61,6 +63,7 @@ export const getAllUsers = async (_: Request, res: Response) => {
           firstName,
           lastName,
           createdAt,
+          icon: icon || "/",
         };
       }
     );
@@ -87,6 +90,7 @@ export const getUserById = async (
       firstName: user.firstName,
       lastName: user.lastName,
       createdAt: user.createdAt,
+      icon: user.icon || "/",
     };
 
     res.status(200).send(formatedUser);
@@ -235,6 +239,7 @@ export const getSelf = async (req: Request, res: Response) => {
       firstName: user.firstName,
       lastName: user.lastName,
       createdAt: user.createdAt,
+      icon: user.icon || "/",
     };
 
     res.status(200).send(formatedUser);
